@@ -72,8 +72,8 @@ class Game:
             0: "level1",
             1: "level2",
             2: "level3",
-            3: "level1",
-            4: "level1"
+            3: "level4",
+            4: "level5"
         }
         while True:
             # draw the level selection screen

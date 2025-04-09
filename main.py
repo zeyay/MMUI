@@ -15,6 +15,7 @@ from controller import ArrowsController, WASDController, GeneralController
 from gates import Gates
 from doors import FireDoor, WaterDoor
 from level_select import LevelSelect
+from gesture_controller import GestureController
 
 
 def main():
@@ -66,6 +67,21 @@ def show_death_screen(game, controller, level):
 def run_game(game, controller, level="level1"):
     # load level data
     if level == "level1":
+        board = Board('data/level0.txt')
+        gates = []
+
+        fire_door_location = (5 * 16, 4 * 16)
+        fire_door = FireDoor(fire_door_location)
+        water_door_location = (28 * 16, 4 * 16)
+        water_door = WaterDoor(water_door_location)
+        doors = [fire_door, water_door]
+
+        magma_boy_location = (28 * 16, 4 * 16)
+        magma_boy = MagmaBoy(magma_boy_location)
+        hydro_girl_location = (5 * 16, 4 * 16)
+        hydro_girl = HydroGirl(hydro_girl_location)
+
+    if level == "level2":
         board = Board('data/level1.txt')
         gate_location = (285, 128)
         plate_locations = [(190, 168), (390, 168)]
@@ -83,7 +99,7 @@ def run_game(game, controller, level="level1"):
         hydro_girl_location = (35, 336)
         hydro_girl = HydroGirl(hydro_girl_location)
 
-    if level == "level2":
+    if level == "level3":
         board = Board('data/level2.txt')
         gates = []
 
@@ -98,7 +114,7 @@ def run_game(game, controller, level="level1"):
         hydro_girl_location = (35, 336)
         hydro_girl = HydroGirl(hydro_girl_location)
 
-    if level == "level3":
+    if level == "level4":
         board = Board('data/level3.txt')
         gates = []
 
@@ -112,6 +128,21 @@ def run_game(game, controller, level="level1"):
         magma_boy = MagmaBoy(magma_boy_location)
         hydro_girl_location = (5 * 16, 4 * 16)
         hydro_girl = HydroGirl(hydro_girl_location)
+    
+    if level == "level5":
+        board = Board('data/level4.txt')
+        gates = []
+
+        fire_door_location = (390, 48)
+        fire_door = FireDoor(fire_door_location)
+        water_door_location = (330, 48)
+        water_door = WaterDoor(water_door_location)
+        doors = [fire_door, water_door]
+
+        magma_boy_location = (16, 336)
+        magma_boy = MagmaBoy(magma_boy_location)
+        hydro_girl_location = (35, 336)
+        hydro_girl = HydroGirl(hydro_girl_location)
 
     # initialize needed classes
 
@@ -119,6 +150,9 @@ def run_game(game, controller, level="level1"):
     wasd_controller = WASDController()
 
     clock = pygame.time.Clock()
+
+    gesture_controller = GestureController()
+    prev_x = 0.5  # center
 
     # main game loop
     while True:
@@ -136,9 +170,46 @@ def run_game(game, controller, level="level1"):
         # draw player
         game.draw_player([magma_boy, hydro_girl])
 
-        # move player
-        arrows_controller.control_player(events, magma_boy)
-        wasd_controller.control_player(events, hydro_girl)
+        ########################
+        #  move player (arrows and wasd)
+        # arrows_controller.control_player(events, magma_boy)
+        # wasd_controller.control_player(events, hydro_girl)
+
+        #################
+        # move player (hand gestures & just one player, no split screen)
+        '''
+        
+        gesture_move_right, gesture_move_left, gesture_jump = gesture_controller.get_controls(prev_x)
+
+        # Apply to MagmaBoy
+        magma_boy.moving_right = gesture_move_right
+        magma_boy.moving_left = gesture_move_left
+
+        if gesture_jump and magma_boy.air_timer < 6:
+            magma_boy.jumping = True
+
+        prev_x = gesture_controller.hand_x if gesture_controller.hand_x else prev_x
+
+
+        magma_controls, hydro_controls = gesture_controller.get_controls()
+        '''
+
+
+        #####################
+
+        # move players at the same time with split screen:
+
+        # move players based on gesture controls
+        magma_controls, hydro_controls = gesture_controller.get_controls()
+
+        # MagmaBoy (right side of camera)
+        magma_boy.moving_right = magma_controls[0]
+        magma_boy.moving_left = magma_controls[1]
+
+        # HydroGirl (left side of camera)
+        hydro_girl.moving_right = hydro_controls[0]
+        hydro_girl.moving_left = hydro_controls[1]
+
 
         game.move_player(board, gates, [magma_boy, hydro_girl])
 
@@ -166,6 +237,7 @@ def run_game(game, controller, level="level1"):
         # close window is player clicks on [x]
         for event in events:
             if event.type == QUIT:
+                gesture_controller.stop()
                 pygame.quit()
                 sys.exit()
 

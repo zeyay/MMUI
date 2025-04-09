@@ -62,7 +62,7 @@ class Gates:
         # if plate is not being pressed and gate is open
         if not self.plate_is_pressed and self._gate_is_open:
             # set new gate location
-            self.gate_location = (gate_X, gate_y + 2 * CHUNK_SIZE)
+            self.gate_location = (gate_x, gate_y + 2 * CHUNK_SIZE)
             # move gate
             self._gate.y += 2 * CHUNK_SIZE
             # set gate as being closed

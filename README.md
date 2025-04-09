@@ -34,6 +34,11 @@ python3 setup.py install --user
  ```
 More in depth installation instructions as well as guides to setting up pygame on Windows and MacOS can be found here:
 https://www.pygame.org/wiki/GettingStarted
+ ```
+For camera and gesture recognition install ultalytics:
+ pip install ultralytics  
+
+
 ## Running the game
 
 Running the game is really simple. Once the installation procedure is complete, go to the game directory and run the following line:
