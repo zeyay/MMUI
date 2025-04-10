@@ -3,9 +3,11 @@ Main file for Magma Boy and Hydro Girl game.
 """
 
 # import pygame and orther needed libraries
+import torch
 import sys
 import pygame
 from pygame.locals import *
+import threading
 
 # import classes
 from game import Game
@@ -16,31 +18,34 @@ from gates import Gates
 from doors import FireDoor, WaterDoor
 from level_select import LevelSelect
 from gesture_controller import GestureController
+from interceptor import Interceptor
 
 
 def main():
+    interceptor = Interceptor()
+    listener_thread = threading.Thread(target= interceptor.start, daemon= True)
+    listener_thread.start()
     pygame.init()
     controller = GeneralController()
     game = Game()
-    show_intro_screen(game, controller)
+    show_intro_screen(game, controller, interceptor)
 
 
-def show_intro_screen(game, controller):
+def show_intro_screen(game, controller, interceptor: Interceptor):
     intro_screen = pygame.image.load('data/screens/intro_screen.png')
     game.display.blit(intro_screen, (0, 0))
     while True:
         game.refresh_window()
         if controller.press_key(pygame.event.get(), K_RETURN):
-            show_level_screen(game, controller)
+            show_level_screen(game, controller, interceptor)
 
 
-def show_level_screen(game, controller):
+def show_level_screen(game, controller, interceptor: Interceptor):
     level_select = LevelSelect()
     level = game.user_select_level(level_select, controller)
-    run_game(game, controller, level)
+    run_game(game, controller, interceptor, level)
 
-
-def show_win_screen(game, controller):
+def show_win_screen(game, controller, interceptor: Interceptor):
     win_screen = pygame.image.load('data/screens/win_screen.png')
     win_screen.set_colorkey((255, 0, 255))
     game.display.blit(win_screen, (0, 0))
@@ -48,10 +53,10 @@ def show_win_screen(game, controller):
     while True:
         game.refresh_window()
         if controller.press_key(pygame.event.get(), K_RETURN):
-            show_level_screen(game, controller)
+            show_level_screen(game, controller, interceptor)
 
 
-def show_death_screen(game, controller, level):
+def show_death_screen(game, controller,interceptor: Interceptor, level):
     death_screen = pygame.image.load('data/screens/death_screen.png')
     death_screen.set_colorkey((255, 0, 255))
     game.display.blit(death_screen, (0, 0))
@@ -59,12 +64,12 @@ def show_death_screen(game, controller, level):
         game.refresh_window()
         events = pygame.event.get()
         if controller.press_key(events, K_RETURN):
-            run_game(game, controller, level)
+            run_game(game, controller, interceptor, level)
         if controller.press_key(events, K_ESCAPE):
-            show_level_screen(game, controller)
+            show_level_screen(game, controller, interceptor)
 
 
-def run_game(game, controller, level="level1"):
+def run_game(game, controller, interceptor: Interceptor, level="level1"):
     # load level data
     if level == "level1":
         board = Board('data/level0.txt')
@@ -145,6 +150,7 @@ def run_game(game, controller, level="level1"):
         hydro_girl = HydroGirl(hydro_girl_location)
 
     # initialize needed classes
+    interceptor.update_players(magma_boy, hydro_girl)
 
     arrows_controller = ArrowsController()
     wasd_controller = WASDController()
@@ -171,9 +177,9 @@ def run_game(game, controller, level="level1"):
         game.draw_player([magma_boy, hydro_girl])
 
         ########################
-        #  move player (arrows and wasd)
-        # arrows_controller.control_player(events, magma_boy)
-        # wasd_controller.control_player(events, hydro_girl)
+        # move player (arrows and wasd)
+        arrows_controller.control_player(events, magma_boy)
+        wasd_controller.control_player(events, hydro_girl)
 
         #################
         # move player (hand gestures & just one player, no split screen)
@@ -226,13 +232,13 @@ def run_game(game, controller, level="level1"):
 
         # special events
         if hydro_girl.is_dead() or magma_boy.is_dead():
-            show_death_screen(game, controller, level)
+            show_death_screen(game, controller, interceptor, level)
 
         if game.level_is_done(doors):
-            show_win_screen(game, controller)
+            show_win_screen(game, controller, interceptor)
 
         if controller.press_key(events, K_ESCAPE):
-            show_level_screen(game, controller)
+            show_level_screen(game, controller, interceptor)
 
         # close window is player clicks on [x]
         for event in events:
