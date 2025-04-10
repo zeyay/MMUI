@@ -10,9 +10,10 @@ from character import MagmaBoy, HydroGirl
 class Interceptor:
     def __init__(self):
         # Initialize the recognizer, queue and model for the class
-        # For the model use the model we downloaded from the Vosk website in dat folder
-        model = Model('data/vosk-model-small-en-us')
-        # model = Model('data/vosk-model-en-us-large')
+        # For the model use the model we downloaded from the Vosk website in data folder, or adjust the path accordingly
+        # model = Model(model_path)
+        # Load the model
+        model = Model('vosk-model-small-en-us-0.15')
         self.recognizer = KaldiRecognizer(model, 16000)
         self.queue = queue.Queue()
 
