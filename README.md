@@ -41,6 +41,20 @@ For camera and gesture recognition install ultalytics:
 pip install ultralytics  
  ```
 
+For voice control install:
+``` 
+pip install keyboard
+```
+``` 
+pip install pyautogui
+```
+``` 
+pip install vosk
+```
+``` 
+pip install sounddevice
+```
+
 ## Running the game
 
 Running the game is really simple. Once the installation procedure is complete, go to the game directory and run the following line:
