@@ -40,6 +40,9 @@ For camera and gesture recognition install ultalytics:
  ``` 
 pip install ultralytics  
  ```
+ ``` 
+pip install opencv-python  
+ ```
 
 For voice control install:
 ``` 
