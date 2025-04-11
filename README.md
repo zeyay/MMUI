@@ -36,6 +36,7 @@ More in depth installation instructions as well as guides to setting up pygame o
 https://www.pygame.org/wiki/GettingStarted
 
 ### Multimodal gameplay
+For MediaPipe Python version 3.10. is needed.
 For camera and gesture recognition install MediaPipe:
  ``` 
 pip install mediapipe  
