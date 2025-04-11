@@ -1,95 +1,59 @@
 import cv2
+import mediapipe as mp
 import threading
-import warnings
-from ultralytics import YOLO
-
-warnings.filterwarnings("ignore", category=FutureWarning)
+from gesture_visualizer import GestureVisualizer
 
 class GestureController:
-    def __init__(self):
-        self.hand1_x = 0.5  # HydroGirl (left)
-        self.hand2_x = 0.5  # MagmaBoy (right)
-        self.running = True
+    NEUTRAL_LOW = 0.45
+    NEUTRAL_HIGH = 0.55
 
-        # Load the YOLO11 model
-        self.model = YOLO("yolo11n.pt")  # Ensure you have the 'yolo11n.pt' model file
+    def __init__(self):
+        self.hand1_x = 0.5  # Left player (HydroGirl)
+        self.hand2_x = 0.5  # Right player (MagmaBoy)
+        self.running = True
+        self.visualizer = GestureVisualizer(self.NEUTRAL_LOW, self.NEUTRAL_HIGH)
+
         self.capture_thread = threading.Thread(target=self._capture_loop)
         self.capture_thread.start()
 
     def _capture_loop(self):
-        self.cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-        if not self.cap.isOpened():
-            print("❌ Webcam not accessible.")
-            return
+        self.cap = cv2.VideoCapture(0)
+        mp_hands = mp.solutions.hands
+        hands = mp_hands.Hands(static_image_mode=False, max_num_hands=2)
+        mp_drawing = mp.solutions.drawing_utils
 
         while self.running:
-            success, img = self.cap.read()
-            if not success or not self.running:
+            ret, frame = self.cap.read()
+            if not ret:
                 break
 
-            # Resize and optionally flip the image for better speed and alignment
-            img = cv2.resize(img, (640, 360))
-            img = cv2.flip(img, 1)              # Flip horizontally
+            frame = cv2.flip(frame, 1)
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            results = hands.process(rgb_frame)
 
-            height, width = img.shape[:2]
+            height, width, _ = frame.shape
             mid_x = width // 2
 
-            # Run YOLOv11 detection in stream mode
-            results = self.model(img, stream=True, verbose=False)
+            self.hand1_x = 0.5
+            self.hand2_x = 0.5
 
-            left_hand = None
-            right_hand = None
-            left_dist = float('inf')
-            right_dist = float('inf')
+            if results.multi_hand_landmarks:
+                for hand_landmarks, hand_info in zip(results.multi_hand_landmarks, results.multi_handedness):
+                    wrist = hand_landmarks.landmark[mp_hands.HandLandmark.WRIST]
+                    x_pixel = int(wrist.x * width)
 
-            for result in results:
-                detections = result.boxes.xyxy.cpu().numpy()
+                    mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
-                for box in detections:
-                    x_min, y_min, x_max, y_max = box[:4]
-                    x_center = (x_min + x_max) / 2
-
-                    # Draw bounding box
-                    cv2.rectangle(img, (int(x_min), int(y_min)), (int(x_max), int(y_max)), (0, 255, 0), 1)
-
-                    if x_center < mid_x:
-                        dist = abs(x_center - (mid_x / 2))
-                        if dist < left_dist:
-                            left_hand = x_center
-                            left_dist = dist
+                    if x_pixel < mid_x:
+                        self.hand1_x = x_pixel / mid_x
+                        cv2.circle(frame, (x_pixel, int(wrist.y * height)), 8, (255, 0, 0), -1)
                     else:
-                        dist = abs(x_center - (mid_x + (mid_x / 2)))
-                        if dist < right_dist:
-                            right_hand = x_center
-                            right_dist = dist
+                        self.hand2_x = (x_pixel - mid_x) / mid_x
+                        cv2.circle(frame, (x_pixel, int(wrist.y * height)), 8, (0, 0, 255), -1)
 
-            # Normalize X for HydroGirl (left)
-            if left_hand is not None:
-                self.hand1_x = left_hand / mid_x
-                cv2.line(img, (int(left_hand), 0), (int(left_hand), height), (255, 0, 0), 2)
-            else:
-                self.hand1_x = 0.5
-
-            # Normalize X for MagmaBoy (right)
-            if right_hand is not None:
-                self.hand2_x = (right_hand - mid_x) / mid_x
-                cv2.line(img, (int(right_hand), 0), (int(right_hand), height), (0, 0, 255), 2)
-            else:
-                self.hand2_x = 0.5
-
-            # Draw center split line
-            cv2.line(img, (mid_x, 0), (mid_x, height), (128, 128, 128), 1)
-
-            # Show X values
-            cv2.putText(img, f"HydroGirl X: {self.hand1_x:.2f}", (10, 25),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 1)
-            cv2.putText(img, f"MagmaBoy X: {self.hand2_x:.2f}", (10, 50),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 1)
-
-            # Show the window
-            cv2.imshow("Gesture Tracking (ESC to quit)", img)
-
-            if cv2.waitKey(1) & 0xFF == 27:  # ESC key to quit
+            # Draw UI and handle display
+            frame = self.visualizer.draw_ui(frame, self.hand1_x, self.hand2_x)
+            if self.visualizer.show(frame) & 0xFF == 27:  # ESC key
                 self.running = False
                 break
 
@@ -97,16 +61,11 @@ class GestureController:
         cv2.destroyAllWindows()
 
     def get_controls(self):
-        """
-        Return control states for both players based on their hand positions.
-        Returns:
-            (magma_right, magma_left), (hydro_right, hydro_left)
-        """
         def interpret(x):
-            if x < 0.48:
-                return False, True  # move right 
-            elif x > 0.52:
-                return True, False  # move left 
+            if x < self.NEUTRAL_LOW:
+                return False, True  # move right
+            elif x > self.NEUTRAL_HIGH:
+                return True, False  # move left
             else:
                 return False, False  # neutral
 
