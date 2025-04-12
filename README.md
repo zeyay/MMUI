@@ -36,9 +36,10 @@ More in depth installation instructions as well as guides to setting up pygame o
 https://www.pygame.org/wiki/GettingStarted
 
 ### Multimodal gameplay
-For camera and gesture recognition install ultalytics:
+For MediaPipe Python version 3.10. is needed.
+For camera and gesture recognition install MediaPipe:
  ``` 
-pip install ultralytics  
+pip install mediapipe  
  ```
  ``` 
 pip install opencv-python  
@@ -56,6 +57,10 @@ pip install vosk
 ```
 ``` 
 pip install sounddevice
+```
+Or all multimodal dependecies together:
+```
+pip install mediapipe opencv-python vosk keyboard pyautogui sounddevice
 ```
 
 ## Running the game
