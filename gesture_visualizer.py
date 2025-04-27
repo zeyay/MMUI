@@ -4,6 +4,7 @@ class GestureVisualizer:
     def __init__(self, neutral_low, neutral_high):
         self.neutral_low = neutral_low
         self.neutral_high = neutral_high
+        self.cv2_window_name = "MediaPipe Gesture Control (ESC for exit)"
 
     def draw_ui(self, frame, hand1_x, hand2_x):
         height, width, _ = frame.shape
@@ -52,6 +53,6 @@ class GestureVisualizer:
 
         return frame
     
-    def show(self, frame, window_name="MediaPipe Gesture Control (ESC for exit)"):
-        cv2.imshow(window_name, frame)
+    def show(self, frame):
+        cv2.imshow(self.cv2_window_name, frame)
         return cv2.waitKey(1)

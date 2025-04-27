@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 import threading
 from gesture_visualizer import GestureVisualizer
+import pygame
 
 class GestureController:
     NEUTRAL_LOW = 0.45
@@ -58,7 +59,9 @@ class GestureController:
                 break
 
         self.cap.release()
-        cv2.destroyAllWindows()
+        # We need to destroy only the specific gesture cv2 window,
+        # as there is another cv2 window in the interceptor which crashes if we destroy all windows with cv2
+        cv2.destroyWindow(self.visualizer.cv2_window_name)
 
     def get_controls(self):
         def interpret(x):

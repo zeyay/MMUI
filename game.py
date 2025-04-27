@@ -1,6 +1,7 @@
 import sys
 import pygame
 from pygame.locals import *
+from interceptor import Interceptor
 
 
 class Game:
@@ -51,7 +52,7 @@ class Game:
         self.display.blit(level_select.left_player, left_cords)
         self.display.blit(level_select.right_player, right_cords)
 
-    def user_select_level(self, level_select, controller):
+    def user_select_level(self, level_select, controller, interceptor: Interceptor):
         """
         Allow for user to select level.
 
@@ -80,15 +81,21 @@ class Game:
             self.draw_level_screen(level_select)
             # get all pygame inputs
             events = pygame.event.get()
+            # get level voice commands from interceptor
+            queued_level = interceptor.get_queued_level()
+            if queued_level is not None:
+                level_index = queued_level - 1
+                self.draw_level_select_indicator(level_select, level_index)
+                return level_dict[level_index]
             # if player presses <down>
-            if controller.press_key(events, K_DOWN):
+            if controller.press_key(events, K_DOWN, interceptor):
                 # move index down one
                 level_index += 1
                 # wrap around if goes past end
                 if level_index == 5:
                     level_index = 0
             # if player presses <up>
-            if controller.press_key(events, K_UP):
+            if controller.press_key(events, K_UP, interceptor):
                 # move index up one
                 level_index -= 1
                 # wrap around if goes past end
@@ -98,7 +105,7 @@ class Game:
             self.draw_level_select_indicator(level_select, level_index)
 
             # if user clicks enter
-            if controller.press_key(events, K_RETURN):
+            if controller.press_key(events, K_RETURN, interceptor):
                 # return the name of the level using dict
                 return level_dict[level_index]
 

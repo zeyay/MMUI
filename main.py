@@ -36,13 +36,13 @@ def show_intro_screen(game, controller, interceptor: Interceptor):
     game.display.blit(intro_screen, (0, 0))
     while True:
         game.refresh_window()
-        if controller.press_key(pygame.event.get(), K_RETURN):
+        if controller.press_key(pygame.event.get(), K_RETURN, interceptor):
             show_level_screen(game, controller, interceptor)
 
 
 def show_level_screen(game, controller, interceptor: Interceptor):
     level_select = LevelSelect()
-    level = game.user_select_level(level_select, controller)
+    level = game.user_select_level(level_select, controller, interceptor)
     run_game(game, controller, interceptor, level)
 
 def show_win_screen(game, controller, interceptor: Interceptor):
@@ -52,7 +52,7 @@ def show_win_screen(game, controller, interceptor: Interceptor):
 
     while True:
         game.refresh_window()
-        if controller.press_key(pygame.event.get(), K_RETURN):
+        if controller.press_key(pygame.event.get(), K_RETURN, interceptor):
             show_level_screen(game, controller, interceptor)
 
 
@@ -63,9 +63,9 @@ def show_death_screen(game, controller,interceptor: Interceptor, level):
     while True:
         game.refresh_window()
         events = pygame.event.get()
-        if controller.press_key(events, K_RETURN):
+        if controller.press_key(events, K_RETURN, interceptor):
             run_game(game, controller, interceptor, level)
-        if controller.press_key(events, K_ESCAPE):
+        if controller.press_key(events, K_ESCAPE, interceptor):
             show_level_screen(game, controller, interceptor)
 
 
@@ -237,13 +237,13 @@ def run_game(game, controller, interceptor: Interceptor, level="level1"):
         if game.level_is_done(doors):
             show_win_screen(game, controller, interceptor)
 
-        if controller.press_key(events, K_ESCAPE):
+        if controller.press_key(events, K_ESCAPE, interceptor, gesture_controller):
             show_level_screen(game, controller, interceptor)
 
         # close window is player clicks on [x]
+        # WE NEVER GET TO THIS CODE, THE WINDOW CLOSES FROM THE controller (method press_key() above)
         for event in events:
             if event.type == QUIT:
-                gesture_controller.stop()
                 pygame.quit()
                 sys.exit()
 
