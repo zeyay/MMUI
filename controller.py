@@ -1,7 +1,8 @@
 import sys
 import pygame
 from pygame.locals import *
-
+from gesture_controller import GestureController
+from interceptor import Interceptor
 
 class Controller:
     def __init__(self):
@@ -47,7 +48,7 @@ class Controller:
                     player.jumping = False
 
     @staticmethod
-    def press_key(events, key):
+    def press_key(events, key, interceptor: Interceptor = None, gesture_controller: GestureController = None):
         """
         Check if a specific key has been pressed.
 
@@ -61,6 +62,10 @@ class Controller:
         """
         for event in events:
             if event.type == QUIT:
+                if gesture_controller:
+                    gesture_controller.stop()
+                if interceptor:
+                    interceptor.stop()
                 pygame.quit()
                 sys.exit()
             elif event.type == KEYDOWN:
