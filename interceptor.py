@@ -55,7 +55,7 @@ class Interceptor:
                             # Append a tuple of time - text for each command
                             self.used_commands.append((datetime.now().strftime("%Y-%m-%d %H:%M:%S"), self.latest_text))
                             pyautogui.press('down')
-                        elif self.latest_text == 'up':
+                        elif self.latest_text == 'up' or self.latest_text == 'op':
                             # Append a tuple of time - text for each command
                             self.used_commands.append((datetime.now().strftime("%Y-%m-%d %H:%M:%S"), self.latest_text))
                             pyautogui.press('up') 
@@ -63,7 +63,7 @@ class Interceptor:
                                 self.magma_boy.jumping = True
                                 time.sleep(0.1)
                                 self.magma_boy.jumping = False
-                        elif self.latest_text == 'boy' or self.latest_text == 'jump' or  self.latest_text == 'up':
+                        elif self.latest_text == 'boy' or self.latest_text == 'jump' or  self.latest_text == 'up' or self.latest_text == 'op':
                             # Append a tuple of time - text for each command
                             self.used_commands.append((datetime.now().strftime("%Y-%m-%d %H:%M:%S"), self.latest_text))
                             if (self.magma_boy):
@@ -129,12 +129,13 @@ class Interceptor:
         cv2.destroyWindow(self.cv2_window_name)
         self.running = False
 
-        """Save used commands to a uniquely named CSV file."""
-        os.makedirs("voice_commands", exist_ok=True)  # Ensure directory exists
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"voice_commands/commands_{timestamp}.csv"
+        if len(self.used_commands) > 0:
+            """Save used commands to a uniquely named CSV file."""
+            os.makedirs("voice_commands", exist_ok=True)  # Ensure directory exists
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"voice_commands/commands_{timestamp}.csv"
 
-        with open(filename, mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(["Timestamp", "Command"])  # Header
-            writer.writerows(self.used_commands)
+            with open(filename, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(["Timestamp", "Command"])  # Header
+                writer.writerows(self.used_commands)

@@ -19,6 +19,7 @@ from doors import FireDoor, WaterDoor
 from level_select import LevelSelect
 from gesture_controller import GestureController
 from interceptor import Interceptor
+from checkpoint import Checkpoint
 
 
 def main():
@@ -56,7 +57,7 @@ def show_win_screen(game, controller, interceptor: Interceptor):
             show_level_screen(game, controller, interceptor)
 
 
-def show_death_screen(game, controller,interceptor: Interceptor, level):
+def show_death_screen(game, controller,interceptor: Interceptor, level, magma_reached_checkpoint = False, hydro_reached_checkpoint = False):
     death_screen = pygame.image.load('data/screens/death_screen.png')
     death_screen.set_colorkey((255, 0, 255))
     game.display.blit(death_screen, (0, 0))
@@ -64,12 +65,12 @@ def show_death_screen(game, controller,interceptor: Interceptor, level):
         game.refresh_window()
         events = pygame.event.get()
         if controller.press_key(events, K_RETURN, interceptor):
-            run_game(game, controller, interceptor, level)
+            run_game(game, controller, interceptor, level, magma_reached_checkpoint, hydro_reached_checkpoint)
         if controller.press_key(events, K_ESCAPE, interceptor):
             show_level_screen(game, controller, interceptor)
 
 
-def run_game(game, controller, interceptor: Interceptor, level="level1"):
+def run_game(game, controller, interceptor: Interceptor, level="level1", magma_reached_checkpoint = False, hydro_reached_checkpoint = False):
     # load level data
     if level == "level1":
         board = Board('data/level0.txt')
@@ -80,10 +81,20 @@ def run_game(game, controller, interceptor: Interceptor, level="level1"):
         water_door_location = (28 * 16, 4 * 16)
         water_door = WaterDoor(water_door_location)
         doors = [fire_door, water_door]
+        checkpoint_location_hydro_girl = (253, 32)
+        checkpoint_location_magma_boy = checkpoint_location_hydro_girl
+        checkpoint_hydro_girl = Checkpoint(checkpoint_location_hydro_girl)
+        checkpoint_magma_boy = Checkpoint(checkpoint_location_magma_boy)
 
-        magma_boy_location = (28 * 16, 4 * 16)
+        if magma_reached_checkpoint:
+            magma_boy_location = checkpoint_location_magma_boy
+        else:
+            magma_boy_location = (28 * 16, 4 * 16)
         magma_boy = MagmaBoy(magma_boy_location)
-        hydro_girl_location = (5 * 16, 4 * 16)
+        if hydro_reached_checkpoint:
+            hydro_girl_location = checkpoint_location_hydro_girl
+        else:
+            hydro_girl_location = (5 * 16, 4 * 16)
         hydro_girl = HydroGirl(hydro_girl_location)
 
     if level == "level2":
@@ -98,10 +109,20 @@ def run_game(game, controller, interceptor: Interceptor, level="level1"):
         water_door_location = (128, 48)
         water_door = WaterDoor(water_door_location)
         doors = [fire_door, water_door]
+        checkpoint_location_hydro_girl = (30, 192)
+        checkpoint_location_magma_boy = checkpoint_location_hydro_girl
+        checkpoint_hydro_girl = Checkpoint(checkpoint_location_hydro_girl)
+        checkpoint_magma_boy = Checkpoint(checkpoint_location_magma_boy)
 
-        magma_boy_location = (16, 336)
+        if magma_reached_checkpoint:
+            magma_boy_location = checkpoint_location_magma_boy
+        else:
+            magma_boy_location = (16, 336)
         magma_boy = MagmaBoy(magma_boy_location)
-        hydro_girl_location = (35, 336)
+        if hydro_reached_checkpoint:
+            hydro_girl_location = checkpoint_location_hydro_girl
+        else:
+            hydro_girl_location = (35, 336)
         hydro_girl = HydroGirl(hydro_girl_location)
 
     if level == "level3":
@@ -113,10 +134,20 @@ def run_game(game, controller, interceptor: Interceptor, level="level1"):
         water_door_location = (330, 48)
         water_door = WaterDoor(water_door_location)
         doors = [fire_door, water_door]
+        checkpoint_location_hydro_girl = (302, 192)
+        checkpoint_location_magma_boy = checkpoint_location_hydro_girl
+        checkpoint_hydro_girl = Checkpoint(checkpoint_location_hydro_girl)
+        checkpoint_magma_boy = Checkpoint(checkpoint_location_magma_boy)
 
-        magma_boy_location = (16, 336)
+        if magma_reached_checkpoint:
+            magma_boy_location = checkpoint_location_magma_boy
+        else:
+            magma_boy_location = (16, 336)
         magma_boy = MagmaBoy(magma_boy_location)
-        hydro_girl_location = (35, 336)
+        if hydro_reached_checkpoint:
+            hydro_girl_location = checkpoint_location_hydro_girl
+        else:
+            hydro_girl_location = (35, 336)
         hydro_girl = HydroGirl(hydro_girl_location)
 
     if level == "level4":
@@ -128,10 +159,20 @@ def run_game(game, controller, interceptor: Interceptor, level="level1"):
         water_door_location = (28 * 16, 4 * 16)
         water_door = WaterDoor(water_door_location)
         doors = [fire_door, water_door]
+        checkpoint_location_hydro_girl = (216, 32)
+        checkpoint_location_magma_boy = (292, 32)
+        checkpoint_hydro_girl = Checkpoint(checkpoint_location_hydro_girl)
+        checkpoint_magma_boy = Checkpoint(checkpoint_location_magma_boy)
 
-        magma_boy_location = (28 * 16, 4 * 16)
+        if magma_reached_checkpoint:
+            magma_boy_location = checkpoint_location_magma_boy
+        else:
+            magma_boy_location = (28 * 16, 4 * 16)
         magma_boy = MagmaBoy(magma_boy_location)
-        hydro_girl_location = (5 * 16, 4 * 16)
+        if hydro_reached_checkpoint:
+            hydro_girl_location = checkpoint_location_hydro_girl
+        else:
+            hydro_girl_location = (5 * 16, 4 * 16)
         hydro_girl = HydroGirl(hydro_girl_location)
     
     if level == "level5":
@@ -143,10 +184,20 @@ def run_game(game, controller, interceptor: Interceptor, level="level1"):
         water_door_location = (330, 48)
         water_door = WaterDoor(water_door_location)
         doors = [fire_door, water_door]
+        checkpoint_location_hydro_girl = (302, 192)
+        checkpoint_location_magma_boy = checkpoint_location_hydro_girl
+        checkpoint_hydro_girl = Checkpoint(checkpoint_location_hydro_girl)
+        checkpoint_magma_boy = Checkpoint(checkpoint_location_magma_boy)
 
-        magma_boy_location = (16, 336)
+        if magma_reached_checkpoint:
+            magma_boy_location = checkpoint_location_magma_boy
+        else:
+            magma_boy_location = (16, 336)
         magma_boy = MagmaBoy(magma_boy_location)
-        hydro_girl_location = (35, 336)
+        if hydro_reached_checkpoint:
+            hydro_girl_location = checkpoint_location_hydro_girl
+        else:
+            hydro_girl_location = (35, 336)
         hydro_girl = HydroGirl(hydro_girl_location)
 
     # initialize needed classes
@@ -172,6 +223,9 @@ def run_game(game, controller, interceptor: Interceptor, level="level1"):
         if gates:
             game.draw_gates(gates)
         game.draw_doors(doors)
+        game.draw_checkpoint(checkpoint_hydro_girl)
+        if checkpoint_location_hydro_girl != checkpoint_location_magma_boy:
+            game.draw_checkpoint(checkpoint_magma_boy)
 
         # draw player
         game.draw_player([magma_boy, hydro_girl])
@@ -226,13 +280,15 @@ def run_game(game, controller, interceptor: Interceptor, level="level1"):
 
         game.check_for_door_open(fire_door, magma_boy)
         game.check_for_door_open(water_door, hydro_girl)
+        game.check_for_checkpoint(checkpoint_hydro_girl, hydro_girl)
+        game.check_for_checkpoint(checkpoint_magma_boy, magma_boy)
 
         # refresh window
         game.refresh_window()
 
         # special events
         if hydro_girl.is_dead() or magma_boy.is_dead():
-            show_death_screen(game, controller, interceptor, level)
+            show_death_screen(game, controller, interceptor, level, magma_boy.reached_checkpoint, hydro_girl.reached_checkpoint)
 
         if game.level_is_done(doors):
             show_win_screen(game, controller, interceptor)
