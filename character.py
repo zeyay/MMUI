@@ -17,6 +17,7 @@ class Character:
         self.air_timer = 0
         # current state
         self._alive = True
+        self.reached_checkpoint = False
 
     def calc_movement(self):
         """

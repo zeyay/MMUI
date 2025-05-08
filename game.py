@@ -235,6 +235,9 @@ class Game:
             # draw door frame
             self.display.blit(door.frame_image, door.frame_location)
 
+    def draw_checkpoint(self, checkpoint):
+        self.display.blit(checkpoint.image, checkpoint.location)
+
     def draw_player(self, players):
         """
         Draw the player.
@@ -400,6 +403,11 @@ class Game:
             # attempt to raise the gate. If plate is pressed, gate will raise,
             # otherwise, the gate will close
             gate.try_open_gate()
+
+    def check_for_checkpoint(self, checkpoint, player):
+        checkpoint_collision = self.collision_test(player.rect, [checkpoint.get_checkpoint()])
+        if checkpoint_collision:
+            player.reached_checkpoint = True
 
     def check_for_door_open(self, door, player):
         """
