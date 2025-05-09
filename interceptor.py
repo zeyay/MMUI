@@ -37,7 +37,7 @@ class Interceptor:
     def start(self):
         # Start the stream to listen to the microphone and process the audio data
         try:
-            with sd.RawInputStream(samplerate=16000, blocksize=1000, dtype='int16', channels=1, latency=0.1, callback=self.update_queue):
+            with sd.RawInputStream(samplerate=16000, blocksize=600, dtype='int16', channels=1, latency=0.02, callback=self.update_queue):
                 while self.running:
                     data = self.queue.get()
                     if self.recognizer.AcceptWaveform(data):

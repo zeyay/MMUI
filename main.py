@@ -18,7 +18,7 @@ from gates import Gates
 from doors import FireDoor, WaterDoor
 from level_select import LevelSelect
 from gesture_controller import GestureController
-from interceptor import Interceptor
+from interceptor2 import Interceptor
 from checkpoint import Checkpoint
 
 
